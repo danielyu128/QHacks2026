@@ -1,6 +1,6 @@
 # Financia
 
-**Bias Detector + Trading Coach** — QHacks 2026 · National Bank Challenge
+**Bias Detector + Trading Coach** — 
 
 > Upload your trades. Detect overtrading, loss aversion & revenge trading. Get personalized interventions, financial literacy lessons, brokerage recommendations, and a Rest Mode to prevent spiraling.
 
