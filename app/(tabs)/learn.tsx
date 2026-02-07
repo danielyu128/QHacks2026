@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-nati
 import { Colors, Spacing, Radius, Typography, Shadows } from "@/src/lib/theme";
 import { useApp } from "@/src/context/AppContext";
 import PrimaryButton from "@/src/components/PrimaryButton";
+import { useRouter } from "expo-router";
 
 export default function LearnScreen() {
+  const router = useRouter();
   const { state } = useApp();
   const { coachOutput } = state;
   const [completed, setCompleted] = useState<Set<number>>(new Set());
@@ -115,6 +117,24 @@ export default function LearnScreen() {
           </Text>
         </View>
       )}
+
+      {/* Roadmap / Coming Soon */}
+      <View style={styles.roadmapCard}>
+        <Text style={styles.roadmapTitle}>🚧 Roadmap (Coming Soon)</Text>
+        <Text style={styles.roadmapText}>
+          • More bias types (requires richer trade labels + notes){"\n"}
+          • Portfolio optimization suggestions (needs holdings + risk targets){"\n"}
+          • Sentiment analysis of trader notes (requires journaling data){"\n"}
+          • Predictive bias trigger model (needs longer history){"\n"}
+          • Stress/emotional tagging (user-input check-ins){"\n"}
+          • AI coach chatbot (needs message-based endpoint)
+        </Text>
+        <PrimaryButton
+          title="View Coach Chat Placeholder"
+          variant="outline"
+          onPress={() => router.push("/coach-chat")}
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -181,4 +201,17 @@ const styles = StyleSheet.create({
   emptyState: { alignItems: "center", marginTop: Spacing.xxxl, gap: Spacing.md },
   emptyIcon: { fontSize: 48 },
   emptyText: { ...Typography.body, color: Colors.textMuted },
+
+  roadmapCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.card,
+    marginTop: Spacing.lg,
+    gap: Spacing.md,
+  },
+  roadmapTitle: { ...Typography.h3 },
+  roadmapText: { ...Typography.bodySmall, color: Colors.textSecondary, lineHeight: 20 },
 });

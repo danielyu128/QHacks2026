@@ -11,6 +11,16 @@ import { Trade } from "./types";
 function generateSampleTrades(): Trade[] {
   const trades: Trade[] = [];
   const assets = ["AAPL", "TSLA", "NVDA", "AMD", "SPY", "QQQ", "MSFT", "AMZN"];
+  const basePrices: Record<string, number> = {
+    AAPL: 190,
+    TSLA: 210,
+    NVDA: 540,
+    AMD: 150,
+    SPY: 480,
+    QQQ: 410,
+    MSFT: 390,
+    AMZN: 170,
+  };
 
   // Seed-like deterministic pseudo-random (simple LCG)
   let seed = 42;
@@ -32,6 +42,8 @@ function generateSampleTrades(): Trade[] {
     new Date("2025-01-31T09:30:00"),
   ];
 
+  let runningBalance = 25000;
+
   for (const dayStart of baseDates) {
     let cursor = dayStart.getTime();
     const dayEnd = cursor + 6.5 * 60 * 60 * 1000; // 6.5hr trading day
@@ -41,6 +53,7 @@ function generateSampleTrades(): Trade[] {
       const isWin = rand() < 0.42; // 42% win rate overall
       const side: "BUY" | "SELL" = rand() < 0.6 ? "BUY" : "SELL";
       const asset = pick(assets);
+      const entryPrice = +(basePrices[asset] * (0.98 + rand() * 0.04)).toFixed(2);
 
       // Loss aversion pattern: wins are smaller, losses are bigger
       let pnl: number;
@@ -54,13 +67,23 @@ function generateSampleTrades(): Trade[] {
         holdMinutes = +(10 + rand() * 50).toFixed(1); // hold losers long (10-60 min)
       }
 
+      // Derive exit price from pnl and qty when available (simple proxy)
+      const qty = +(10 + Math.floor(rand() * 90));
+      const direction = side === "BUY" ? 1 : -1;
+      const exitPrice = +(entryPrice + (pnl / Math.max(qty, 1)) * direction).toFixed(2);
+
+      runningBalance += pnl;
       const trade: Trade = {
+        id: `${cursor}-${asset}-${tradesThisDay.length}`,
         timestamp: cursor,
         side,
         asset,
         pnl,
-        qty: +(10 + Math.floor(rand() * 90)),
+        qty,
         holdMinutes,
+        entryPrice,
+        exitPrice,
+        accountBalance: +runningBalance.toFixed(2),
       };
       tradesThisDay.push(trade);
 

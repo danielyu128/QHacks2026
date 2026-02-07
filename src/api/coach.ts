@@ -14,10 +14,17 @@ export async function fetchCoachOutput(
   metrics: SummaryMetrics
 ): Promise<CoachOutput> {
   try {
+    const payload = {
+      ...metrics,
+      clientMeta: {
+        app: "BiasDetector",
+        version: "1.1.0",
+      },
+    };
     const response = await fetch(`${API_BASE}/api/coach`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(metrics),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {

@@ -41,6 +41,17 @@ export default function InsightsScreen() {
         </Text>
       </View>
 
+      {/* Data Completeness Warning */}
+      {metrics?.dataCompleteness?.missingFields?.length ? (
+        <View style={styles.dataWarning}>
+          <Text style={styles.dataWarningTitle}>Limited Insights</Text>
+          <Text style={styles.dataWarningText}>
+            Add {metrics.dataCompleteness.missingFields.join(", ")} to unlock balance-based,
+            risk/reward, and size-based bias signals.
+          </Text>
+        </View>
+      ) : null}
+
       {/* Coach Headline */}
       {coachOutput && (
         <View style={styles.headlineCard}>
@@ -56,6 +67,15 @@ export default function InsightsScreen() {
           key={result.bias}
           result={result}
           onPressCTA={() => router.push("/(tabs)/plan")}
+          onPressJournal={() =>
+            router.push({
+              pathname: "/journal",
+              params: {
+                bias: result.bias,
+                prompt: result.evidence.slice(0, 2).join(" "),
+              },
+            })
+          }
         />
       ))}
 
@@ -178,6 +198,24 @@ const styles = StyleSheet.create({
     ...Typography.body,
     color: Colors.primaryLight,
     lineHeight: 22,
+  },
+  dataWarning: {
+    backgroundColor: Colors.warning + "15",
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.warning + "40",
+    marginBottom: Spacing.lg,
+  },
+  dataWarningTitle: {
+    ...Typography.label,
+    color: Colors.warning,
+    marginBottom: Spacing.xs,
+  },
+  dataWarningText: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    lineHeight: 20,
   },
   metricsCard: {
     marginTop: Spacing.sm,

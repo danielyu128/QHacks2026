@@ -10,12 +10,14 @@ import {
   Platform,
 } from "react-native";
 import * as Linking from "expo-linking";
+import { useRouter } from "expo-router";
 import { Colors, Spacing, Radius, Typography, Shadows } from "@/src/lib/theme";
 import { useApp } from "@/src/context/AppContext";
 import PrimaryButton from "@/src/components/PrimaryButton";
 import SeverityBadge from "@/src/components/SeverityBadge";
 
 export default function PlanScreen() {
+  const router = useRouter();
   const { state, dispatch } = useApp();
   const { coachOutput, restMode } = state;
   const [toggles, setToggles] = useState<Record<string, boolean>>({});
@@ -194,6 +196,27 @@ export default function PlanScreen() {
           ))}
         </View>
       )}
+
+      {/* Journal Prompt */}
+      <View style={styles.journalCard}>
+        <Text style={styles.sectionTitle}>📝 Journal Prompt</Text>
+        <Text style={styles.sectionDesc}>
+          Reflect on a recent trade or bias moment to build awareness.
+        </Text>
+        <PrimaryButton
+          title="Open Journal"
+          variant="outline"
+          onPress={() =>
+            router.push({
+              pathname: "/journal",
+              params: {
+                prompt:
+                  "What triggered your most recent impulsive trade, and how will you respond next time?",
+              },
+            })
+          }
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -282,4 +305,15 @@ const styles = StyleSheet.create({
   },
   microHabitLabel: { ...Typography.label, color: Colors.secondary, marginBottom: Spacing.xs },
   microHabitText: { ...Typography.bodySmall, lineHeight: 20 },
+
+  journalCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.card,
+    marginTop: Spacing.lg,
+    gap: Spacing.sm,
+  },
 });

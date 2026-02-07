@@ -1,6 +1,7 @@
 // ── Core Data Types ──────────────────────────────────────────────────────────
 
 export type Trade = {
+  id?: string;
   timestamp: number; // ms epoch
   side: "BUY" | "SELL";
   asset: string;
@@ -8,6 +9,9 @@ export type Trade = {
   qty?: number;
   positionSize?: number;
   holdMinutes?: number;
+  entryPrice?: number | null;
+  exitPrice?: number | null;
+  accountBalance?: number | null;
 };
 
 // ── Computed Metrics ─────────────────────────────────────────────────────────
@@ -32,7 +36,39 @@ export type SummaryMetrics = {
   postLossTradesWithin30MinAvg: number;
   postLossWinRate: number;
 
+  avgAccountBalance: number | null;
+  avgTradeSize: number | null;
+  balanceTurnover: number | null;
+
+  assetSwitchRate: number;
+  sideFlipRate: number;
+
+  hourlyTradeCounts: number[];
+  maxHourlyTradeShare: number;
+
+  postWinTradesWithin30MinAvg: number | null;
+  largeWinThreshold: number | null;
+
+  avgWinReturnPct: number | null;
+  avgLossReturnPct: number | null;
+  riskRewardRatio: number | null;
+  smallWinRate: number | null;
+  smallWinThreshold: number | null;
+
+  avgTradeSizeAfterLoss: number | null;
+  sizeAfterLossRatio: number | null;
+
+  avgTradeSizeAfterStreak: number | null;
+  avgMinutesBetweenTradesAfterStreak: number | null;
+
   worstHours: string[];
+
+  dataCompleteness: {
+    entryExitCoverage: number;
+    balanceCoverage: number;
+    sizeCoverage: number;
+    missingFields: string[];
+  };
 
   detectedBiases: BiasType[];
   severities: Record<string, Severity>;
@@ -110,6 +146,17 @@ export type RiskProfile = {
   reasons: string[];
   pnlTrend: "POSITIVE" | "NEGATIVE" | "FLAT";
   recommendations: ETFRecommendation[];
+};
+
+// ── Journaling ───────────────────────────────────────────────────────────────
+
+export type JournalEntry = {
+  id: string;
+  createdAt: number;
+  bias?: BiasType;
+  tradeId?: string;
+  prompt?: string;
+  text: string;
 };
 
 // ── App State ────────────────────────────────────────────────────────────────

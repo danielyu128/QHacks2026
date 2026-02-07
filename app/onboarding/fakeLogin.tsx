@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing, Radius, Typography } from "@/src/lib/theme";
 import PrimaryButton from "@/src/components/PrimaryButton";
 import DisclaimerBanner from "@/src/components/DisclaimerBanner";
+import BackButton from "@/src/components/BackButton";
 
 export default function FakeLoginScreen() {
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function FakeLoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        <BackButton />
         <View style={styles.header}>
           <Text style={styles.title}>{bank} Online Banking</Text>
           <Text style={styles.subtitle}>Sign in to link your account</Text>

@@ -8,6 +8,7 @@ import { computeMetrics } from "@/src/lib/metrics";
 import { compareBrokerages } from "@/src/lib/brokerage";
 import { computeRiskProfile } from "@/src/lib/risk";
 import { fetchCoachOutput } from "@/src/api/coach";
+import BackButton from "@/src/components/BackButton";
 
 const STEPS = [
   { label: "Parsing trades", icon: "📊" },
@@ -77,6 +78,7 @@ export default function AnalyzingScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        <BackButton />
         <Text style={styles.title}>Analyzing Your Trades</Text>
         <Text style={styles.subtitle}>
           {state.trades.length} trades loaded

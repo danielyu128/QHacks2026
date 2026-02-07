@@ -49,8 +49,11 @@ export default function RootLayout() {
       >
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="import" />
+        <Stack.Screen name="manual-entry" />
         <Stack.Screen name="analyzing" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="journal" />
+        <Stack.Screen name="coach-chat" />
       </Stack>
     </AppProvider>
   );

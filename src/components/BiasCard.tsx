@@ -19,9 +19,10 @@ const BIAS_ICONS: Record<string, string> = {
 type Props = {
   result: BiasResult;
   onPressCTA?: () => void;
+  onPressJournal?: () => void;
 };
 
-export default function BiasCard({ result, onPressCTA }: Props) {
+export default function BiasCard({ result, onPressCTA, onPressJournal }: Props) {
   return (
     <View style={styles.card}>
       <View style={styles.header}>
@@ -42,6 +43,12 @@ export default function BiasCard({ result, onPressCTA }: Props) {
       {onPressCTA && (
         <TouchableOpacity onPress={onPressCTA} style={styles.cta}>
           <Text style={styles.ctaText}>See recommendations →</Text>
+        </TouchableOpacity>
+      )}
+
+      {onPressJournal && (
+        <TouchableOpacity onPress={onPressJournal} style={styles.ctaSecondary}>
+          <Text style={styles.ctaTextSecondary}>Journal this bias →</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -95,5 +102,12 @@ const styles = StyleSheet.create({
   ctaText: {
     ...Typography.label,
     color: Colors.primaryLight,
+  },
+  ctaSecondary: {
+    marginTop: Spacing.sm,
+  },
+  ctaTextSecondary: {
+    ...Typography.label,
+    color: Colors.secondary,
   },
 });

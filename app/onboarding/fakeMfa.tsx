@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing, Radius, Typography } from "@/src/lib/theme";
 import PrimaryButton from "@/src/components/PrimaryButton";
 import { useApp } from "@/src/context/AppContext";
+import BackButton from "@/src/components/BackButton";
 
 export default function FakeMfaScreen() {
   const router = useRouter();
@@ -51,6 +52,7 @@ export default function FakeMfaScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        <BackButton />
         {!success ? (
           <>
             <View style={styles.header}>

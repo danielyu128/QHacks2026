@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing, Radius, Typography, Shadows } from "@/src/lib/theme";
 import DisclaimerBanner from "@/src/components/DisclaimerBanner";
+import BackButton from "@/src/components/BackButton";
 
 const BANKS = [
   { id: "TD", label: "TD", color: "#00A651" },
@@ -27,6 +28,7 @@ export default function PartnerSelectScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
+        <BackButton />
         <Text style={styles.title}>Select Partner Bank</Text>
         <Text style={styles.subtitle}>
           Choose your brokerage to link (demo simulation)

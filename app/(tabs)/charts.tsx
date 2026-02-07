@@ -27,6 +27,21 @@ export default function ChartsScreen() {
       }));
   }, [trades]);
 
+  // ── Chart 1b: P/L Timeline (Cumulative) ──────────────────────────────
+  const pnlTimeline = useMemo(() => {
+    const sorted = [...trades].sort((a, b) => a.timestamp - b.timestamp);
+    let cum = 0;
+    return sorted.map((t, i) => {
+      cum += t.pnl;
+      return {
+        value: Math.round(cum),
+        label: i % Math.max(1, Math.floor(sorted.length / 6)) === 0
+          ? new Date(t.timestamp).toISOString().slice(5, 10)
+          : "",
+      };
+    });
+  }, [trades]);
+
   // ── Chart 2: Time Between Trades Distribution ─────────────────────────
   const gapDistribution = useMemo(() => {
     const sorted = [...trades].sort((a, b) => a.timestamp - b.timestamp);
@@ -51,6 +66,19 @@ export default function ChartsScreen() {
         dataPointText: String(count),
       }));
   }, [trades]);
+
+  // ── Chart 2b: Hourly Heatmap ─────────────────────────────────────────
+  const hourlyCounts = useMemo(() => {
+    if (metrics?.hourlyTradeCounts && metrics.hourlyTradeCounts.length === 24) {
+      return metrics.hourlyTradeCounts;
+    }
+    const counts = Array.from({ length: 24 }, () => 0);
+    for (const t of trades) {
+      const h = new Date(t.timestamp).getHours();
+      counts[h] += 1;
+    }
+    return counts;
+  }, [metrics, trades]);
 
   // ── Chart 3: Post-Loss Trade Count ────────────────────────────────────
   const postLossData = useMemo(() => {
@@ -123,6 +151,34 @@ export default function ChartsScreen() {
         )}
       </ChartCard>
 
+      {/* P/L Timeline */}
+      <ChartCard
+        title="Cumulative P/L Timeline"
+        subtitle="Shows how your P/L evolves over time"
+      >
+        {pnlTimeline.length > 0 ? (
+          <LineChart
+            data={pnlTimeline}
+            width={CHART_WIDTH}
+            height={180}
+            color={Colors.secondary}
+            thickness={2}
+            noOfSections={4}
+            areaChart
+            startFillColor={Colors.secondary + "30"}
+            endFillColor={Colors.secondary + "05"}
+            yAxisColor={Colors.border}
+            xAxisColor={Colors.border}
+            yAxisTextStyle={styles.axisText}
+            xAxisLabelTextStyle={styles.axisText}
+            dataPointsColor={Colors.secondary}
+            isAnimated
+          />
+        ) : (
+          <Text style={styles.noData}>Insufficient data</Text>
+        )}
+      </ChartCard>
+
       {/* Time Between Trades */}
       <ChartCard
         title="Time Between Trades"
@@ -147,6 +203,26 @@ export default function ChartsScreen() {
             isAnimated
           />
         )}
+      </ChartCard>
+
+      {/* Hourly Heatmap */}
+      <ChartCard
+        title="Hourly Trading Heatmap"
+        subtitle="Darker blocks = more trades at that hour"
+      >
+        <View style={styles.heatmapGrid}>
+          {hourlyCounts.map((count, hour) => {
+            const max = Math.max(...hourlyCounts, 1);
+            const intensity = count / max;
+            const color = hexToRgba(Colors.primary, 0.15 + intensity * 0.75);
+            return (
+              <View key={hour} style={[styles.heatCell, { backgroundColor: color }]}>
+                <Text style={styles.heatLabel}>{hour}</Text>
+              </View>
+            );
+          })}
+        </View>
+        <Text style={styles.heatLegend}>Low → High</Text>
       </ChartCard>
 
       {/* Post-Loss Trades */}
@@ -216,6 +292,29 @@ const styles = StyleSheet.create({
     color: Colors.textMuted,
     fontSize: 10,
   },
+  heatmapGrid: {
+    width: CHART_WIDTH,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: Spacing.xs,
+    justifyContent: "space-between",
+  },
+  heatCell: {
+    width: (CHART_WIDTH - Spacing.xs * 5) / 6,
+    height: 28,
+    borderRadius: 6,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  heatLabel: {
+    fontSize: 10,
+    color: Colors.textPrimary,
+  },
+  heatLegend: {
+    ...Typography.caption,
+    marginTop: Spacing.sm,
+    color: Colors.textMuted,
+  },
   noData: {
     ...Typography.bodySmall,
     color: Colors.textMuted,
@@ -223,3 +322,11 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
   },
 });
+
+function hexToRgba(hex: string, alpha: number): string {
+  const cleanHex = hex.replace("#", "");
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
