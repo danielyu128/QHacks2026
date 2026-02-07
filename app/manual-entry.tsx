@@ -257,7 +257,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderRadius: Radius.md,
     padding: Spacing.md,
-    color: Colors.textPrimary,
     ...Typography.body,
   },
   buttonRow: { gap: Spacing.md },

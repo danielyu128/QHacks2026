@@ -23,10 +23,17 @@ export default function TabLayout() {
           height: 60,
           paddingBottom: 8,
           paddingTop: 4,
+          paddingHorizontal: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
+          fontSize: 8,
           fontWeight: "600",
+        },
+        tabBarItemStyle: {
+          paddingHorizontal: 2,
+          minWidth: 0,
+          flex: 1,
+          alignItems: "center",
         },
         headerStyle: {
           backgroundColor: Colors.background,

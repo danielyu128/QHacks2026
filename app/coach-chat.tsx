@@ -2,11 +2,13 @@ import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing, Radius, Typography, Shadows } from "@/src/lib/theme";
+import BackButton from "@/src/components/BackButton";
 
 export default function CoachChatPlaceholder() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
+        <BackButton />
         <Text style={styles.title}>Coach Chat (Coming Soon)</Text>
         <Text style={styles.subtitle}>
           We currently generate coaching insights from metrics only. A chat experience

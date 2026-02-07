@@ -1,4 +1,4 @@
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { JournalEntry } from "./types";
 
 const JOURNAL_PATH = `${FileSystem.documentDirectory}journal_entries.json`;

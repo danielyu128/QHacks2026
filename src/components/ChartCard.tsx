@@ -39,5 +39,7 @@ const styles = StyleSheet.create({
   chartContainer: {
     marginTop: Spacing.sm,
     alignItems: "center",
+    borderRadius: Radius.lg,
+    overflow: "hidden",
   },
 });

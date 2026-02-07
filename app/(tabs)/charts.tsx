@@ -1,11 +1,12 @@
-import React, { useMemo } from "react";
-import { ScrollView, Text, StyleSheet, View, Dimensions } from "react-native";
-import { BarChart, LineChart } from "react-native-gifted-charts";
-import { Colors, Spacing, Typography } from "@/src/lib/theme";
-import { useApp } from "@/src/context/AppContext";
 import ChartCard from "@/src/components/ChartCard";
+import { useApp } from "@/src/context/AppContext";
+import { Colors, Spacing, Typography } from "@/src/lib/theme";
+import React, { useMemo } from "react";
+import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { BarChart, LineChart } from "react-native-gifted-charts";
 
-const CHART_WIDTH = Dimensions.get("window").width - 80;
+const CHART_WIDTH = Dimensions.get("window").width - 100;
+const Y_AXIS_WIDTH = 36;
 
 export default function ChartsScreen() {
   const { state } = useApp();
@@ -23,7 +24,12 @@ export default function ChartsScreen() {
       .map(([label, value]) => ({
         value,
         label,
-        frontColor: value > 20 ? Colors.danger : value > 12 ? Colors.warning : Colors.secondary,
+        frontColor:
+          value > 20
+            ? Colors.danger
+            : value > 12
+              ? Colors.warning
+              : Colors.secondary,
       }));
   }, [trades]);
 
@@ -35,9 +41,10 @@ export default function ChartsScreen() {
       cum += t.pnl;
       return {
         value: Math.round(cum),
-        label: i % Math.max(1, Math.floor(sorted.length / 6)) === 0
-          ? new Date(t.timestamp).toISOString().slice(5, 10)
-          : "",
+        label:
+          i % Math.max(1, Math.floor(sorted.length / 6)) === 0
+            ? new Date(t.timestamp).toISOString().slice(5, 10)
+            : "",
       };
     });
   }, [trades]);
@@ -98,7 +105,12 @@ export default function ChartsScreen() {
           data.push({
             value: count,
             label: `L${lossIdx}`,
-            frontColor: count >= 3 ? Colors.danger : count >= 2 ? Colors.warning : Colors.secondary,
+            frontColor:
+              count >= 3
+                ? Colors.danger
+                : count >= 2
+                  ? Colors.warning
+                  : Colors.secondary,
           });
         }
       }
@@ -108,7 +120,8 @@ export default function ChartsScreen() {
 
   // ── Chart 4: Win vs Loss Hold Time ────────────────────────────────────
   const holdTimeData = useMemo(() => {
-    if (!metrics?.avgHoldMinutesWins || !metrics?.avgHoldMinutesLosses) return null;
+    if (!metrics?.avgHoldMinutesWins || !metrics?.avgHoldMinutesLosses)
+      return null;
     return [
       {
         value: metrics.avgHoldMinutesWins,
@@ -124,10 +137,7 @@ export default function ChartsScreen() {
   }, [metrics]);
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-    >
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Trades Per Day */}
       <ChartCard
         title="Trades Per Day"
@@ -140,10 +150,17 @@ export default function ChartsScreen() {
             height={180}
             barWidth={32}
             spacing={16}
+            initialSpacing={8}
+            endSpacing={8}
             noOfSections={5}
             barBorderRadius={4}
+            yAxisThickness={0}
+            xAxisThickness={1}
+            rulesThickness={1}
+            rulesColor={Colors.border + "70"}
             yAxisColor={Colors.border}
             xAxisColor={Colors.border}
+            yAxisLabelWidth={Y_AXIS_WIDTH}
             yAxisTextStyle={styles.axisText}
             xAxisLabelTextStyle={styles.axisText}
             isAnimated
@@ -165,10 +182,15 @@ export default function ChartsScreen() {
             thickness={2}
             noOfSections={4}
             areaChart
-            startFillColor={Colors.secondary + "30"}
+            startFillColor={Colors.secondary + "25"}
             endFillColor={Colors.secondary + "05"}
+            yAxisThickness={0}
+            xAxisThickness={1}
+            rulesThickness={1}
+            rulesColor={Colors.border + "70"}
             yAxisColor={Colors.border}
             xAxisColor={Colors.border}
+            yAxisLabelWidth={Y_AXIS_WIDTH}
             yAxisTextStyle={styles.axisText}
             xAxisLabelTextStyle={styles.axisText}
             dataPointsColor={Colors.secondary}
@@ -195,8 +217,13 @@ export default function ChartsScreen() {
             areaChart
             startFillColor={Colors.primary + "40"}
             endFillColor={Colors.primary + "05"}
+            yAxisThickness={0}
+            xAxisThickness={1}
+            rulesThickness={1}
+            rulesColor={Colors.border + "70"}
             yAxisColor={Colors.border}
             xAxisColor={Colors.border}
+            yAxisLabelWidth={Y_AXIS_WIDTH}
             yAxisTextStyle={styles.axisText}
             xAxisLabelTextStyle={styles.axisText}
             dataPointsColor={Colors.primaryLight}
@@ -216,7 +243,10 @@ export default function ChartsScreen() {
             const intensity = count / max;
             const color = hexToRgba(Colors.primary, 0.15 + intensity * 0.75);
             return (
-              <View key={hour} style={[styles.heatCell, { backgroundColor: color }]}>
+              <View
+                key={hour}
+                style={[styles.heatCell, { backgroundColor: color }]}
+              >
                 <Text style={styles.heatLabel}>{hour}</Text>
               </View>
             );
@@ -235,12 +265,19 @@ export default function ChartsScreen() {
             data={postLossData}
             width={CHART_WIDTH}
             height={180}
-            barWidth={20}
-            spacing={8}
-            noOfSections={5}
+            barWidth={14}
+            spacing={6}
+            initialSpacing={6}
+            endSpacing={6}
+            noOfSections={4}
             barBorderRadius={4}
+            yAxisThickness={0}
+            xAxisThickness={1}
+            rulesThickness={1}
+            rulesColor={Colors.border + "70"}
             yAxisColor={Colors.border}
             xAxisColor={Colors.border}
+            yAxisLabelWidth={Y_AXIS_WIDTH}
             yAxisTextStyle={styles.axisText}
             xAxisLabelTextStyle={styles.axisText}
             isAnimated
@@ -262,10 +299,17 @@ export default function ChartsScreen() {
             height={180}
             barWidth={60}
             spacing={40}
+            initialSpacing={10}
+            endSpacing={10}
             noOfSections={4}
             barBorderRadius={4}
+            yAxisThickness={0}
+            xAxisThickness={1}
+            rulesThickness={1}
+            rulesColor={Colors.border + "70"}
             yAxisColor={Colors.border}
             xAxisColor={Colors.border}
+            yAxisLabelWidth={Y_AXIS_WIDTH}
             yAxisTextStyle={styles.axisText}
             xAxisLabelTextStyle={styles.axisText}
             yAxisLabelSuffix=" min"
