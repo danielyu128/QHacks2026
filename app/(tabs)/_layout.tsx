@@ -1,7 +1,8 @@
-import React from "react";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { Tabs } from "expo-router";
+import BackButton from "@/src/components/BackButton";
 import { Colors } from "@/src/lib/theme";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Tabs, useRouter } from "expo-router";
+import React from "react";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>["name"];
@@ -11,6 +12,7 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
+  const router = useRouter();
   return (
     <Tabs
       screenOptions={{
@@ -43,6 +45,9 @@ export default function TabLayout() {
           fontWeight: "700",
         },
         headerShadowVisible: false,
+        headerLeft: () => (
+          <BackButton onPress={() => router.replace("/onboarding/welcome")} />
+        ),
       }}
     >
       <Tabs.Screen
@@ -87,9 +92,7 @@ export default function TabLayout() {
         name="brokerage"
         options={{
           title: "Broker",
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="bank" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="bank" color={color} />,
           headerTitle: "Brokerage Comparison",
         }}
       />
@@ -97,9 +100,7 @@ export default function TabLayout() {
         name="safer"
         options={{
           title: "ETFs",
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="shield" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="shield" color={color} />,
           headerTitle: "Safer Alternatives",
         }}
       />

@@ -1,14 +1,14 @@
-import React, { useEffect, useState, useRef } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
-import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors, Spacing, Typography } from "@/src/lib/theme";
-import { useApp } from "@/src/context/AppContext";
-import { computeMetrics } from "@/src/lib/metrics";
-import { compareBrokerages } from "@/src/lib/brokerage";
-import { computeRiskProfile } from "@/src/lib/risk";
 import { fetchCoachOutput } from "@/src/api/coach";
 import BackButton from "@/src/components/BackButton";
+import { useApp } from "@/src/context/AppContext";
+import { compareBrokerages } from "@/src/lib/brokerage";
+import { computeMetrics } from "@/src/lib/metrics";
+import { computeRiskProfile } from "@/src/lib/risk";
+import { Colors, Spacing, Typography } from "@/src/lib/theme";
+import { useRouter } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
+import { Animated, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const STEPS = [
   { label: "Parsing trades", icon: "📊" },
@@ -30,7 +30,7 @@ export default function AnalyzingScreen() {
   useEffect(() => {
     Animated.timing(progressAnim, {
       toValue: (currentStep + 1) / STEPS.length,
-      duration: 400,
+      duration: 600,
       useNativeDriver: false,
     }).start();
   }, [currentStep]);
@@ -78,56 +78,67 @@ export default function AnalyzingScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        <BackButton />
-        <Text style={styles.title}>Analyzing Your Trades</Text>
-        <Text style={styles.subtitle}>
-          {state.trades.length} trades loaded
-        </Text>
-
-        <View style={styles.progressBarBg}>
-          <Animated.View
-            style={[
-              styles.progressBarFill,
-              {
-                width: progressAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ["0%", "100%"],
-                }),
-              },
-            ]}
-          />
+        <View style={styles.headerRow}>
+          <BackButton />
+          <Text style={styles.headerTitle}>Analyzing Your Trades</Text>
+          <View style={styles.headerSpacer} />
         </View>
 
-        <View style={styles.steps}>
-          {STEPS.map((step, i) => (
-            <View
-              key={i}
+        <View style={styles.main}>
+          <Text style={styles.title}>Analyzing Your Trades</Text>
+          <Text style={styles.subtitle}>
+            {state.trades.length} trades loaded
+          </Text>
+
+          <View style={styles.progressBarBg}>
+            <Animated.View
               style={[
-                styles.stepRow,
-                i < currentStep && styles.stepComplete,
-                i === currentStep && styles.stepActive,
+                styles.progressBarFill,
+                {
+                  width: progressAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ["0%", "100%"],
+                  }),
+                },
               ]}
-            >
-              <Text style={styles.stepIcon}>
-                {i < currentStep ? "✅" : i === currentStep ? step.icon : "⏳"}
-              </Text>
-              <Text
+            />
+          </View>
+
+          <View style={styles.steps}>
+            {STEPS.map((step, i) => (
+              <View
+                key={i}
                 style={[
-                  styles.stepLabel,
-                  i <= currentStep && styles.stepLabelActive,
+                  styles.stepRow,
+                  i < currentStep && styles.stepComplete,
+                  i === currentStep && styles.stepActive,
                 ]}
               >
-                {step.label}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        {error && (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
+                <Text style={styles.stepIcon}>
+                  {i < currentStep
+                    ? "✅"
+                    : i === currentStep
+                      ? step.icon
+                      : "⏳"}
+                </Text>
+                <Text
+                  style={[
+                    styles.stepLabel,
+                    i <= currentStep && styles.stepLabelActive,
+                  ]}
+                >
+                  {step.label}
+                </Text>
+              </View>
+            ))}
           </View>
-        )}
+
+          {error && (
+            <View style={styles.errorBox}>
+              <Text style={styles.errorText}>{error}</Text>
+            </View>
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -145,12 +156,31 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: Spacing.xl,
-    justifyContent: "center",
-    gap: Spacing.xl,
+    justifyContent: "space-between",
+    gap: Spacing.lg,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: Spacing.md,
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  headerTitle: {
+    ...Typography.h2,
+    textAlign: "center",
+    flex: 1,
   },
   title: {
     ...Typography.h1,
     textAlign: "center",
+  },
+  main: {
+    flex: 1,
+    justifyContent: "center",
+    gap: Spacing.xl,
   },
   subtitle: {
     ...Typography.body,

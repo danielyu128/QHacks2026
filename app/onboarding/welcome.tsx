@@ -1,9 +1,9 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors, Spacing, Typography } from "@/src/lib/theme";
 import PrimaryButton from "@/src/components/PrimaryButton";
+import { Colors, Spacing, Typography } from "@/src/lib/theme";
+import { useRouter } from "expo-router";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -16,8 +16,8 @@ export default function WelcomeScreen() {
           <Text style={styles.title}>Bias Detector</Text>
           <Text style={styles.subtitle}>+ Trading Coach</Text>
           <Text style={styles.tagline}>
-            Detect overtrading, loss aversion & revenge trading.{"\n"}
-            Get personalized interventions.
+            Detect overtrading, loss aversion & revenge trading. Get
+            personalized interventions.
           </Text>
         </View>
 
