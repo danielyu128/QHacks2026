@@ -1,15 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ScrollView, TextInput, Alert } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Colors, Spacing, Radius, Typography, Shadows } from "@/src/lib/theme";
 import PrimaryButton from "@/src/components/PrimaryButton";
 import { addJournalEntry, loadJournalEntries } from "@/src/lib/journal";
+import { Colors, Radius, Shadows, Spacing, Typography } from "@/src/lib/theme";
 import { JournalEntry } from "@/src/lib/types";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function JournalScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ bias?: string; prompt?: string; tradeId?: string }>();
+  const params = useLocalSearchParams<{
+    bias?: string;
+    prompt?: string;
+    tradeId?: string;
+  }>();
   const [text, setText] = useState("");
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -64,7 +75,11 @@ export default function JournalScreen() {
             multiline
             numberOfLines={5}
           />
-          <PrimaryButton title="Save Entry" onPress={handleSave} loading={loading} />
+          <PrimaryButton
+            title="Save Entry"
+            onPress={handleSave}
+            loading={loading}
+          />
           <PrimaryButton
             title="Back to Insights"
             variant="outline"
@@ -80,7 +95,8 @@ export default function JournalScreen() {
             entries.slice(0, 10).map((e) => (
               <View key={e.id} style={styles.entryRow}>
                 <Text style={styles.entryMeta}>
-                  {new Date(e.createdAt).toLocaleString()} {e.bias ? `• ${e.bias}` : ""}
+                  {new Date(e.createdAt).toLocaleString()}{" "}
+                  {e.bias ? `• ${e.bias}` : ""}
                 </Text>
                 <Text style={styles.entryText}>{e.text}</Text>
               </View>
@@ -94,9 +110,17 @@ export default function JournalScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: Spacing.lg, paddingBottom: Spacing.xxxl, gap: Spacing.lg },
+  content: {
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xxxl,
+    gap: Spacing.lg,
+  },
   title: { ...Typography.h1, textAlign: "center" },
-  subtitle: { ...Typography.bodySmall, textAlign: "center", color: Colors.textSecondary },
+  subtitle: {
+    ...Typography.bodySmall,
+    textAlign: "center",
+    color: Colors.textSecondary,
+  },
   card: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
@@ -114,7 +138,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.primary + "30",
   },
-  promptLabel: { ...Typography.label, color: Colors.primaryLight, marginBottom: Spacing.xs },
+  promptLabel: {
+    ...Typography.label,
+    color: Colors.primaryLight,
+    marginBottom: Spacing.xs,
+  },
   promptText: { ...Typography.bodySmall, color: Colors.textSecondary },
   input: {
     backgroundColor: Colors.surfaceLight,
@@ -122,7 +150,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     borderRadius: Radius.md,
     padding: Spacing.md,
-    color: Colors.textPrimary,
     minHeight: 120,
     textAlignVertical: "top",
     ...Typography.body,
@@ -134,6 +161,10 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.sm,
     marginBottom: Spacing.sm,
   },
-  entryMeta: { ...Typography.caption, color: Colors.textMuted, marginBottom: 4 },
+  entryMeta: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+    marginBottom: 4,
+  },
   entryText: { ...Typography.bodySmall },
 });

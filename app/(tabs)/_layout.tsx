@@ -1,5 +1,5 @@
 import BackButton from "@/src/components/BackButton";
-import { Colors } from "@/src/lib/theme";
+import { Colors, Spacing } from "@/src/lib/theme";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Tabs, useRouter } from "expo-router";
 import React from "react";
@@ -56,6 +56,10 @@ export default function TabLayout() {
           title: "Insights",
           tabBarIcon: ({ color }) => <TabBarIcon name="eye" color={color} />,
           headerTitle: "Bias Insights",
+          headerLeftContainerStyle: {
+            paddingLeft: Spacing.md,
+            paddingTop: Spacing.xs,
+          },
         }}
       />
       <Tabs.Screen
