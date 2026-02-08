@@ -1,3 +1,4 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { coachRouter } from "./routes/coach.js";
@@ -19,7 +20,7 @@ app.use("/api", coachRouter);
 
 // Start
 app.listen(PORT, () => {
-  console.log(`🚀 Bias Detector Backend running on http://localhost:${PORT}`);
+  console.log(`🚀 financia Backend running on http://localhost:${PORT}`);
   console.log(`   POST /api/coach — Coaching endpoint`);
   console.log(`   GET /health — Health check`);
   if (!process.env.GEMINI_API_KEY) {

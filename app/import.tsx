@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Alert, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Alert,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
-import { Colors, Spacing, Radius, Typography, Shadows } from "@/src/lib/theme";
+import { Colors, Spacing, Radius, Typography } from "@/src/lib/theme";
 import PrimaryButton from "@/src/components/PrimaryButton";
 import BackButton from "@/src/components/BackButton";
 import { useApp } from "@/src/context/AppContext";
@@ -17,6 +24,7 @@ export default function ImportScreen() {
   const router = useRouter();
   const { dispatch } = useApp();
   const [loading, setLoading] = useState(false);
+  const [showDemoData, setShowDemoData] = useState(false);
 
   const handleUseSampleData = () => {
     dispatch({ type: "SET_TRADES", payload: SAMPLE_TRADES });
@@ -30,7 +38,7 @@ export default function ImportScreen() {
       if (warnings.length > 0) {
         const proceed = await confirmProceed(
           "Missing Fields Detected",
-          `${warnings.join("\n")}\n\nYou can continue with limited analysis, or re-upload a file that includes entry price, exit price, and account balance.`
+          `${warnings.join("\n")}\n\nContinue with limited analysis?`
         );
         if (!proceed) {
           setLoading(false);
@@ -40,7 +48,7 @@ export default function ImportScreen() {
       dispatch({ type: "SET_TRADES", payload: trades });
       router.push("/analyzing");
     } catch (error: any) {
-      Alert.alert("Mock Dataset Error", error.message || "Failed to load mock dataset.");
+      Alert.alert("Error", error.message || "Failed to load dataset.");
     } finally {
       setLoading(false);
     }
@@ -100,7 +108,7 @@ export default function ImportScreen() {
       if (warnings.length > 0) {
         const proceed = await confirmProceed(
           "Missing Fields Detected",
-          `${warnings.join("\n")}\n\nYou can continue with limited analysis, or re-upload a file that includes entry price, exit price, and account balance.`
+          `${warnings.join("\n")}\n\nContinue with limited analysis?`
         );
         if (!proceed) {
           setLoading(false);
@@ -111,7 +119,7 @@ export default function ImportScreen() {
       dispatch({ type: "SET_TRADES", payload: trades });
       router.push("/analyzing");
     } catch (error: any) {
-      Alert.alert("Import Error", error.message || "Failed to parse CSV file.");
+      Alert.alert("Import Error", error.message || "Failed to parse file.");
     } finally {
       setLoading(false);
     }
@@ -119,80 +127,92 @@ export default function ImportScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <BackButton />
         <View style={styles.header}>
-          <Text style={styles.title}>Import Your Trades</Text>
+          <Text style={styles.title}>Import Trades</Text>
           <Text style={styles.subtitle}>
-            Upload a CSV file or use our sample dataset for a quick demo
+            Upload your trading history or use demo data
           </Text>
         </View>
 
-        <View style={styles.cards}>
-          <View style={styles.card}>
-            <Text style={styles.cardIcon}>📁</Text>
-            <Text style={styles.cardTitle}>Upload CSV</Text>
-            <Text style={styles.cardDesc}>
-              Required columns: timestamp, side, asset, pnl, entry_price, exit_price, account_balance{"\n"}
-              Optional: qty, position_size, hold_minutes
+        {/* Upload Section */}
+        <View style={styles.section}>
+          <View style={styles.uploadArea}>
+            <Text style={styles.uploadIcon}>📁</Text>
+            <Text style={styles.uploadTitle}>Upload CSV or Excel</Text>
+            <Text style={styles.uploadDesc}>
+              Columns: timestamp, side, asset, pnl, entry_price, exit_price, account_balance
             </Text>
             <PrimaryButton
-              title="Choose CSV/Excel"
+              title="Choose File"
               onPress={handleUploadFile}
               loading={loading}
-              variant="outline"
             />
           </View>
+        </View>
 
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>OR</Text>
-            <View style={styles.dividerLine} />
-          </View>
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>OR</Text>
+          <View style={styles.dividerLine} />
+        </View>
 
-          <View style={[styles.card, styles.highlightCard]}>
-            <Text style={styles.cardIcon}>🚀</Text>
-            <Text style={styles.cardTitle}>Use Sample Dataset</Text>
-            <Text style={styles.cardDesc}>
-              Pre-loaded with ~{SAMPLE_TRADES.length} trades across 5 days.{"\n"}
-              Demonstrates all bias detection features.
+        {/* Demo Data Section */}
+        <View style={styles.section}>
+          <PrimaryButton
+            title="Quick Demo (~191 trades)"
+            variant="outline"
+            onPress={handleUseSampleData}
+          />
+
+          <TouchableOpacity
+            style={styles.expandBtn}
+            onPress={() => setShowDemoData(!showDemoData)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.expandBtnText}>
+              {showDemoData ? "Hide" : "Show"} Judging Datasets
             </Text>
-            <PrimaryButton
-              title="Load Sample Data"
-              onPress={handleUseSampleData}
-            />
-          </View>
-
-          <View style={styles.card}>
-            <Text style={styles.cardIcon}>🧪</Text>
-            <Text style={styles.cardTitle}>Mock Datasets</Text>
-            <Text style={styles.cardDesc}>
-              Provided datasets for judging scenarios. Pick one to load instantly.
+            <Text style={styles.expandArrow}>
+              {showDemoData ? "▲" : "▼"}
             </Text>
-            <View style={styles.datasetList}>
+          </TouchableOpacity>
+
+          {showDemoData && (
+            <View style={styles.datasetGrid}>
               {MOCK_DATASETS.map((d) => (
-                <PrimaryButton
+                <TouchableOpacity
                   key={d.id}
-                  title={d.label}
-                  variant="outline"
+                  style={styles.datasetCard}
                   onPress={() => handleLoadMockDataset(d.id)}
-                  style={{ marginBottom: Spacing.sm }}
-                />
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.datasetLabel}>{d.label}</Text>
+                  <Text style={styles.datasetDesc}>{d.description}</Text>
+                </TouchableOpacity>
               ))}
             </View>
-          </View>
+          )}
+        </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardIcon}>✍️</Text>
-            <Text style={styles.cardTitle}>Manual Entry</Text>
-            <Text style={styles.cardDesc}>
-              Add trades one-by-one with entry/exit price and account balance.
-            </Text>
-            <PrimaryButton
-              title="Add Trades Manually"
-              onPress={() => router.push("/manual-entry")}
-            />
-          </View>
+        {/* Manual Entry */}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.manualEntry}
+            onPress={() => router.push("/manual-entry")}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.manualIcon}>✍️</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.manualTitle}>Manual Entry</Text>
+              <Text style={styles.manualDesc}>Add trades one-by-one</Text>
+            </View>
+            <Text style={styles.chevron}>›</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -206,51 +226,46 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.xl,
-    gap: Spacing.xl,
+    gap: Spacing.lg,
     paddingBottom: Spacing.xxxl,
   },
   header: {
-    gap: Spacing.sm,
+    gap: Spacing.xs,
+    marginBottom: Spacing.sm,
   },
   title: {
     ...Typography.h1,
     textAlign: "center",
   },
   subtitle: {
-    ...Typography.body,
+    ...Typography.bodySmall,
     color: Colors.textSecondary,
     textAlign: "center",
   },
-  cards: {
-    gap: Spacing.lg,
+  section: {
+    gap: Spacing.md,
   },
-  card: {
+  uploadArea: {
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
     padding: Spacing.xl,
     borderWidth: 1,
     borderColor: Colors.border,
+    borderStyle: "dashed",
     alignItems: "center",
     gap: Spacing.md,
-    ...Shadows.card,
   },
-  highlightCard: {
-    borderColor: Colors.primary + "60",
-  },
-  cardIcon: {
+  uploadIcon: {
     fontSize: 36,
   },
-  cardTitle: {
+  uploadTitle: {
     ...Typography.h3,
   },
-  cardDesc: {
-    ...Typography.bodySmall,
+  uploadDesc: {
+    ...Typography.caption,
+    color: Colors.textMuted,
     textAlign: "center",
-    lineHeight: 20,
-  },
-  datasetList: {
-    marginTop: Spacing.sm,
-    width: "100%",
+    lineHeight: 18,
   },
   divider: {
     flexDirection: "row",
@@ -264,6 +279,65 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     ...Typography.label,
+    color: Colors.textMuted,
+  },
+  expandBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+  },
+  expandBtnText: {
+    ...Typography.bodySmall,
+    color: Colors.primaryLight,
+  },
+  expandArrow: {
+    color: Colors.primaryLight,
+    fontSize: 12,
+  },
+  datasetGrid: {
+    gap: Spacing.sm,
+  },
+  datasetCard: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  datasetLabel: {
+    ...Typography.body,
+    fontWeight: "600",
+    marginBottom: 2,
+  },
+  datasetDesc: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  manualEntry: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    gap: Spacing.md,
+  },
+  manualIcon: {
+    fontSize: 24,
+  },
+  manualTitle: {
+    ...Typography.body,
+    fontWeight: "600",
+  },
+  manualDesc: {
+    ...Typography.caption,
+    color: Colors.textMuted,
+  },
+  chevron: {
+    fontSize: 24,
     color: Colors.textMuted,
   },
 });

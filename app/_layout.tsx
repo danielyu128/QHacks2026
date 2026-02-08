@@ -7,7 +7,7 @@ import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
 import { AppProvider } from "@/src/context/AppContext";
-import { Colors } from "@/src/lib/theme";
+import { ThemeProvider, useTheme } from "@/src/context/ThemeContext";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -16,6 +16,31 @@ export const unstable_settings = {
 };
 
 SplashScreen.preventAutoHideAsync();
+
+function RootStack() {
+  const { colors, isDark } = useTheme();
+
+  return (
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.background },
+          animation: "slide_from_right",
+        }}
+      >
+        <Stack.Screen name="onboarding" />
+        <Stack.Screen name="import" />
+        <Stack.Screen name="manual-entry" />
+        <Stack.Screen name="analyzing" />
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="journal" />
+        <Stack.Screen name="coach-chat" />
+      </Stack>
+    </>
+  );
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -38,23 +63,10 @@ export default function RootLayout() {
   }
 
   return (
-    <AppProvider>
-      <StatusBar style="light" />
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: Colors.background },
-          animation: "slide_from_right",
-        }}
-      >
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="import" />
-        <Stack.Screen name="manual-entry" />
-        <Stack.Screen name="analyzing" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="journal" />
-        <Stack.Screen name="coach-chat" />
-      </Stack>
-    </AppProvider>
+    <ThemeProvider>
+      <AppProvider>
+        <RootStack />
+      </AppProvider>
+    </ThemeProvider>
   );
 }

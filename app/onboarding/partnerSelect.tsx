@@ -1,12 +1,25 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, ImageSourcePropType } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Colors, Spacing, Radius, Typography, Shadows } from "@/src/lib/theme";
 import DisclaimerBanner from "@/src/components/DisclaimerBanner";
 import BackButton from "@/src/components/BackButton";
 
-const BANKS = [
+const PLATFORM_LOGOS: Record<string, ImageSourcePropType> = {
+  Wealthsimple: require("@/assets/images/logos/wealthsimple.png"),
+  Questrade: require("@/assets/images/logos/questrade.png"),
+  TD: require("@/assets/images/logos/td.png"),
+  RBC: require("@/assets/images/logos/rbc.png"),
+  BMO: require("@/assets/images/logos/bmo.png"),
+  Scotia: require("@/assets/images/logos/scotia.png"),
+  CIBC: require("@/assets/images/logos/cibc.png"),
+  NBC: require("@/assets/images/logos/nbc.png"),
+};
+
+const PLATFORMS = [
+  { id: "Wealthsimple", label: "Wealthsimple", color: "#512DA8" },
+  { id: "Questrade", label: "Questrade", color: "#2C8F2C" },
   { id: "TD", label: "TD", color: "#00A651" },
   { id: "RBC", label: "RBC", color: "#005DAA" },
   { id: "BMO", label: "BMO", color: "#0075BE" },
@@ -18,42 +31,44 @@ const BANKS = [
 export default function PartnerSelectScreen() {
   const router = useRouter();
 
-  const handleSelect = (bankId: string) => {
+  const handleSelect = (platformId: string) => {
     router.push({
       pathname: "/onboarding/fakeLogin",
-      params: { bank: bankId },
+      params: { bank: platformId },
     });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <BackButton />
-        <Text style={styles.title}>Select Partner Bank</Text>
+        <Text style={styles.title}>Select Your Platform</Text>
         <Text style={styles.subtitle}>
           Choose your brokerage to link (demo simulation)
         </Text>
 
-        <DisclaimerBanner text="Simulation for hackathon demo only. Do not enter real banking credentials." />
+        <DisclaimerBanner text="Demo simulation only — do not enter real banking credentials." />
 
         <View style={styles.grid}>
-          {BANKS.map((bank) => (
+          {PLATFORMS.map((platform) => (
             <TouchableOpacity
-              key={bank.id}
-              style={[styles.bankCard, { borderColor: bank.color + "60" }]}
-              onPress={() => handleSelect(bank.id)}
+              key={platform.id}
+              style={[styles.platformCard, { borderColor: platform.color + "60" }]}
+              onPress={() => handleSelect(platform.id)}
               activeOpacity={0.7}
             >
-              <View style={[styles.bankIcon, { backgroundColor: bank.color + "20" }]}>
-                <Text style={[styles.bankInitial, { color: bank.color }]}>
-                  {bank.label.charAt(0)}
-                </Text>
+              <View style={styles.logoContainer}>
+                <Image
+                  source={PLATFORM_LOGOS[platform.id]}
+                  style={styles.logoImage}
+                  resizeMode="contain"
+                />
               </View>
-              <Text style={styles.bankLabel}>{bank.label}</Text>
+              <Text style={styles.platformLabel}>{platform.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -64,9 +79,9 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
   },
   content: {
-    flex: 1,
     padding: Spacing.xl,
     gap: Spacing.lg,
+    paddingBottom: Spacing.xxxl,
   },
   title: {
     ...Typography.h1,
@@ -84,7 +99,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: Spacing.lg,
   },
-  bankCard: {
+  platformCard: {
     width: "45%",
     backgroundColor: Colors.surface,
     borderRadius: Radius.lg,
@@ -94,18 +109,20 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     ...Shadows.card,
   },
-  bankIcon: {
+  logoContainer: {
     width: 56,
     height: 56,
-    borderRadius: 28,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
+    overflow: "hidden",
   },
-  bankInitial: {
-    fontSize: 24,
-    fontWeight: "800",
+  logoImage: {
+    width: 40,
+    height: 40,
   },
-  bankLabel: {
+  platformLabel: {
     ...Typography.h3,
   },
 });

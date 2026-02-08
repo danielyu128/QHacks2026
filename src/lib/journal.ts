@@ -21,3 +21,10 @@ export async function addJournalEntry(entry: JournalEntry): Promise<JournalEntry
   await FileSystem.writeAsStringAsync(JOURNAL_PATH, JSON.stringify(next));
   return next;
 }
+
+export async function deleteJournalEntry(id: string): Promise<JournalEntry[]> {
+  const existing = await loadJournalEntries();
+  const next = existing.filter((e) => e.id !== id);
+  await FileSystem.writeAsStringAsync(JOURNAL_PATH, JSON.stringify(next));
+  return next;
+}

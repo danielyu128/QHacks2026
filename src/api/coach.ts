@@ -17,7 +17,7 @@ export async function fetchCoachOutput(
     const payload = {
       ...metrics,
       clientMeta: {
-        app: "BiasDetector",
+        app: "financia",
         version: "1.1.0",
       },
     };

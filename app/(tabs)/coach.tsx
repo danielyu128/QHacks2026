@@ -11,12 +11,10 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors, Spacing, Radius, Typography } from "@/src/lib/theme";
 import { useApp } from "@/src/context/AppContext";
 import { sendChatMessage, ChatMessage } from "@/src/api/coachChat";
-import BackButton from "@/src/components/BackButton";
 
 const STORAGE_KEY = "financia_coach_chat";
 
@@ -26,7 +24,7 @@ const QUICK_PROMPTS = [
   "Summarize my biases",
 ];
 
-export default function CoachChatScreen() {
+export default function CoachTab() {
   const { state } = useApp();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -44,7 +42,7 @@ export default function CoachChatScreen() {
         setMessages(JSON.parse(stored));
       }
     } catch {
-      // Ignore load errors
+      // Ignore
     }
   };
 
@@ -52,7 +50,7 @@ export default function CoachChatScreen() {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(msgs));
     } catch {
-      // Ignore save errors
+      // Ignore
     }
   };
 
@@ -87,7 +85,6 @@ export default function CoachChatScreen() {
       setInput("");
       setLoading(true);
 
-      // Gather context from app state
       const biases = state.biasResults.map((b) => b.bias);
       const evidence = state.biasResults.flatMap((b) => b.evidence).slice(0, 10);
 
@@ -127,141 +124,93 @@ export default function CoachChatScreen() {
   const renderMessage = ({ item }: { item: ChatMessage }) => {
     const isUser = item.role === "user";
     return (
-      <View
-        style={[
-          styles.bubble,
-          isUser ? styles.bubbleUser : styles.bubbleCoach,
-        ]}
-      >
+      <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleCoach]}>
         {!isUser && <Text style={styles.coachLabel}>Coach</Text>}
-        <Text
-          style={[
-            styles.bubbleText,
-            isUser ? styles.bubbleTextUser : styles.bubbleTextCoach,
-          ]}
-        >
+        <Text style={[styles.bubbleText, isUser ? styles.bubbleTextUser : styles.bubbleTextCoach]}>
           {item.text}
         </Text>
         <Text style={styles.timestamp}>
-          {new Date(item.timestamp).toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
+          {new Date(item.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
         </Text>
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <View style={styles.header}>
-        <BackButton />
-        <Text style={styles.headerTitle}>Coach Chat</Text>
-        <TouchableOpacity onPress={clearChat} style={styles.clearBtn}>
-          <Text style={styles.clearBtnText}>Clear</Text>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={90}
+    >
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        renderItem={renderMessage}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.messageList}
+        ListEmptyComponent={
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>💬</Text>
+            <Text style={styles.emptyTitle}>Talk to your Coach</Text>
+            <Text style={styles.emptySubtitle}>
+              Ask about your biases, get rules for tomorrow, or reflect on a recent trade.
+            </Text>
+          </View>
+        }
+        ListFooterComponent={
+          loading ? (
+            <View style={[styles.bubble, styles.bubbleCoach]}>
+              <Text style={styles.coachLabel}>Coach</Text>
+              <View style={styles.typingRow}>
+                <ActivityIndicator size="small" color={Colors.primaryLight} />
+                <Text style={styles.typingText}>Thinking...</Text>
+              </View>
+            </View>
+          ) : null
+        }
+      />
+
+      {messages.length === 0 && !loading && (
+        <View style={styles.quickPrompts}>
+          {QUICK_PROMPTS.map((prompt) => (
+            <TouchableOpacity
+              key={prompt}
+              style={styles.quickChip}
+              onPress={() => handleSend(prompt)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.quickChipText}>{prompt}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      <View style={styles.inputRow}>
+        <TextInput
+          style={styles.input}
+          placeholder="Ask your coach..."
+          placeholderTextColor={Colors.textMuted}
+          value={input}
+          onChangeText={setInput}
+          onSubmitEditing={() => handleSend()}
+          returnKeyType="send"
+          editable={!loading}
+        />
+        <TouchableOpacity
+          style={[styles.sendBtn, (!input.trim() || loading) && styles.sendBtnDisabled]}
+          onPress={() => handleSend()}
+          disabled={!input.trim() || loading}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.sendBtnText}>↑</Text>
         </TouchableOpacity>
       </View>
-
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={0}
-      >
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.messageList}
-          ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>💬</Text>
-              <Text style={styles.emptyTitle}>Talk to your Coach</Text>
-              <Text style={styles.emptySubtitle}>
-                Ask about your biases, get rules for tomorrow, or reflect on a
-                recent trade.
-              </Text>
-            </View>
-          }
-          ListFooterComponent={
-            loading ? (
-              <View style={[styles.bubble, styles.bubbleCoach]}>
-                <Text style={styles.coachLabel}>Coach</Text>
-                <View style={styles.typingRow}>
-                  <ActivityIndicator size="small" color={Colors.primaryLight} />
-                  <Text style={styles.typingText}>Thinking...</Text>
-                </View>
-              </View>
-            ) : null
-          }
-        />
-
-        {messages.length === 0 && !loading && (
-          <View style={styles.quickPrompts}>
-            {QUICK_PROMPTS.map((prompt) => (
-              <TouchableOpacity
-                key={prompt}
-                style={styles.quickChip}
-                onPress={() => handleSend(prompt)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.quickChipText}>{prompt}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.input}
-            placeholder="Ask your coach..."
-            placeholderTextColor={Colors.textMuted}
-            value={input}
-            onChangeText={setInput}
-            onSubmitEditing={() => handleSend()}
-            returnKeyType="send"
-            editable={!loading}
-          />
-          <TouchableOpacity
-            style={[styles.sendBtn, (!input.trim() || loading) && styles.sendBtnDisabled]}
-            onPress={() => handleSend()}
-            disabled={!input.trim() || loading}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.sendBtnText}>↑</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  flex: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
-  },
-  headerTitle: {
-    ...Typography.h3,
-  },
-  clearBtn: {
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.xs,
-  },
-  clearBtnText: {
-    ...Typography.bodySmall,
-    color: Colors.danger,
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
   messageList: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xl,
@@ -291,32 +240,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.xs,
     fontWeight: "600",
   },
-  bubbleText: {
-    ...Typography.body,
-    lineHeight: 22,
-  },
-  bubbleTextUser: {
-    color: Colors.white,
-  },
-  bubbleTextCoach: {
-    color: Colors.textPrimary,
-  },
-  timestamp: {
-    ...Typography.caption,
-    marginTop: Spacing.xs,
-    textAlign: "right",
-    opacity: 0.6,
-  },
-  typingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: Spacing.sm,
-  },
-  typingText: {
-    ...Typography.bodySmall,
-    color: Colors.textMuted,
-    fontStyle: "italic",
-  },
+  bubbleText: { ...Typography.body, lineHeight: 22 },
+  bubbleTextUser: { color: Colors.white },
+  bubbleTextCoach: { color: Colors.textPrimary },
+  timestamp: { ...Typography.caption, marginTop: Spacing.xs, textAlign: "right", opacity: 0.6 },
+  typingRow: { flexDirection: "row", alignItems: "center", gap: Spacing.sm },
+  typingText: { ...Typography.bodySmall, color: Colors.textMuted, fontStyle: "italic" },
   emptyState: {
     flex: 1,
     justifyContent: "center",
@@ -324,12 +253,8 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     gap: Spacing.sm,
   },
-  emptyIcon: {
-    fontSize: 48,
-  },
-  emptyTitle: {
-    ...Typography.h2,
-  },
+  emptyIcon: { fontSize: 48 },
+  emptyTitle: { ...Typography.h2 },
   emptySubtitle: {
     ...Typography.bodySmall,
     color: Colors.textSecondary,
@@ -353,10 +278,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.sm,
   },
-  quickChipText: {
-    ...Typography.bodySmall,
-    color: Colors.primaryLight,
-  },
+  quickChipText: { ...Typography.bodySmall, color: Colors.primaryLight },
   inputRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -387,12 +309,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  sendBtnDisabled: {
-    opacity: 0.4,
-  },
-  sendBtnText: {
-    color: Colors.white,
-    fontSize: 20,
-    fontWeight: "700",
-  },
+  sendBtnDisabled: { opacity: 0.4 },
+  sendBtnText: { color: Colors.white, fontSize: 20, fontWeight: "700" },
 });

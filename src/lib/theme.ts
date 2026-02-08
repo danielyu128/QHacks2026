@@ -1,8 +1,33 @@
-// ── Color Palette (Dark Navy "Bank-Grade") ───────────────────────────────────
+import { Platform } from "react-native";
 
-export const Colors = {
+// ── Color Palette Type ────────────────────────────────────────────────────────
+
+export type ColorPalette = {
+  background: string;
+  surface: string;
+  surface2: string;
+  surfaceLight: string;
+  primary: string;
+  primaryLight: string;
+  secondary: string;
+  warning: string;
+  danger: string;
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  border: string;
+  borderLight: string;
+  white: string;
+  black: string;
+  overlay: string;
+};
+
+// ── Dark Palette (default) ────────────────────────────────────────────────────
+
+export const DarkColors: ColorPalette = {
   background: "#07121F",
   surface: "#0B1E33",
+  surface2: "#0E2742",
   surfaceLight: "#112A45",
   primary: "#1E4DD8",
   primaryLight: "#3B6EF5",
@@ -17,7 +42,33 @@ export const Colors = {
   white: "#FFFFFF",
   black: "#000000",
   overlay: "rgba(7, 18, 31, 0.85)",
-} as const;
+};
+
+// ── Light Palette ─────────────────────────────────────────────────────────────
+
+export const LightColors: ColorPalette = {
+  background: "#F5F7FA",
+  surface: "#FFFFFF",
+  surface2: "#EEF1F5",
+  surfaceLight: "#E8ECF2",
+  primary: "#1E4DD8",
+  primaryLight: "#3B6EF5",
+  secondary: "#16A34A",
+  warning: "#D97706",
+  danger: "#DC2626",
+  textPrimary: "#0F172A",
+  textSecondary: "#475569",
+  textMuted: "#94A3B8",
+  border: "#CBD5E1",
+  borderLight: "#E2E8F0",
+  white: "#FFFFFF",
+  black: "#000000",
+  overlay: "rgba(15, 23, 42, 0.5)",
+};
+
+// ── Backward-compatible default export (dark) ─────────────────────────────────
+
+export const Colors = DarkColors;
 
 // ── Severity Colors ──────────────────────────────────────────────────────────
 
@@ -63,8 +114,6 @@ export const Typography = {
 } as const;
 
 // ── Shadows ──────────────────────────────────────────────────────────────────
-
-import { Platform } from "react-native";
 
 export const Shadows = {
   card: Platform.select({

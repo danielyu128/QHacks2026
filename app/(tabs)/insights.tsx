@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { Colors, Spacing, Radius, Typography, Shadows, SeverityColors } from "@/src/lib/theme";
 import { useApp } from "@/src/context/AppContext";
@@ -114,6 +114,35 @@ export default function InsightsScreen() {
           </View>
         </View>
       )}
+
+      {/* Quick Links */}
+      <Text style={styles.sectionTitle}>Explore More</Text>
+      <View style={styles.linkCards}>
+        <TouchableOpacity
+          style={styles.linkCard}
+          onPress={() => router.push("/(tabs)/learn")}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.linkIcon}>📚</Text>
+          <Text style={styles.linkLabel}>Learn</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.linkCard}
+          onPress={() => router.push("/(tabs)/brokerage")}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.linkIcon}>🏦</Text>
+          <Text style={styles.linkLabel}>Broker</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.linkCard}
+          onPress={() => router.push("/(tabs)/safer")}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.linkIcon}>🛡️</Text>
+          <Text style={styles.linkLabel}>ETFs</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
@@ -242,5 +271,28 @@ const styles = StyleSheet.create({
   metricPillLabel: {
     ...Typography.caption,
     textAlign: "center",
+  },
+  linkCards: {
+    flexDirection: "row",
+    gap: Spacing.sm,
+    marginBottom: Spacing.xl,
+  },
+  linkCard: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    alignItems: "center",
+    gap: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  linkIcon: {
+    fontSize: 24,
+  },
+  linkLabel: {
+    ...Typography.caption,
+    fontWeight: "600",
+    color: Colors.textSecondary,
   },
 });

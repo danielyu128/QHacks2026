@@ -7,7 +7,7 @@ import { computeRiskProfile } from "@/src/lib/risk";
 import { Colors, Spacing, Typography } from "@/src/lib/theme";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet, Text, View } from "react-native";
+import { Animated, InteractionManager, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const STEPS = [
@@ -24,7 +24,11 @@ export default function AnalyzingScreen() {
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    runAnalysis();
+    // Wait for animations to settle before heavy computation
+    const task = InteractionManager.runAfterInteractions(() => {
+      runAnalysis();
+    });
+    return () => task.cancel();
   }, []);
 
   useEffect(() => {
@@ -42,14 +46,14 @@ export default function AnalyzingScreen() {
         return;
       }
 
-      // Step 1: Compute metrics (also runs detectBiases internally)
+      // Step 1: Compute metrics
       setCurrentStep(0);
-      await delay(600); // Brief visual delay for UX
+      await delay(400);
       const metrics = computeMetrics(state.trades);
 
       // Step 2: Compute brokerage + risk
       setCurrentStep(1);
-      await delay(600);
+      await delay(400);
       const biasResults = metrics.detectedBiases.map((bias) => ({
         bias,
         severity: metrics.severities[bias] as "LOW" | "MEDIUM" | "HIGH",
@@ -68,7 +72,7 @@ export default function AnalyzingScreen() {
       const coachOutput = await fetchCoachOutput(metrics);
       dispatch({ type: "SET_COACH_OUTPUT", payload: coachOutput });
 
-      await delay(400);
+      await delay(300);
       router.replace("/(tabs)/insights");
     } catch (err: any) {
       setError(err.message || "Analysis failed");
@@ -80,12 +84,11 @@ export default function AnalyzingScreen() {
       <View style={styles.content}>
         <View style={styles.headerRow}>
           <BackButton />
-          <Text style={styles.headerTitle}>Analyzing Your Trades</Text>
+          <Text style={styles.headerTitle}>Analyzing</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         <View style={styles.main}>
-          <Text style={styles.title}>Analyzing Your Trades</Text>
           <Text style={styles.subtitle}>
             {state.trades.length} trades loaded
           </Text>
@@ -172,10 +175,6 @@ const styles = StyleSheet.create({
     ...Typography.h2,
     textAlign: "center",
     flex: 1,
-  },
-  title: {
-    ...Typography.h1,
-    textAlign: "center",
   },
   main: {
     flex: 1,

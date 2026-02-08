@@ -1,5 +1,5 @@
 import PrimaryButton from "@/src/components/PrimaryButton";
-import { addJournalEntry, loadJournalEntries } from "@/src/lib/journal";
+import { addJournalEntry, loadJournalEntries, deleteJournalEntry } from "@/src/lib/journal";
 import { Colors, Radius, Shadows, Spacing, Typography } from "@/src/lib/theme";
 import { JournalEntry } from "@/src/lib/types";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -10,9 +10,11 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import BackButton from "@/src/components/BackButton";
 
 export default function JournalScreen() {
   const router = useRouter();
@@ -50,9 +52,28 @@ export default function JournalScreen() {
     Alert.alert("Saved", "Your journal entry was saved.");
   };
 
+  const handleDelete = (entry: JournalEntry) => {
+    Alert.alert(
+      "Delete entry?",
+      "This can't be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            const next = await deleteJournalEntry(entry.id);
+            setEntries(next);
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
+        <BackButton />
         <Text style={styles.title}>Journal</Text>
         <Text style={styles.subtitle}>
           Reflect on a bias moment or trade decision. Entries are saved locally.
@@ -80,11 +101,6 @@ export default function JournalScreen() {
             onPress={handleSave}
             loading={loading}
           />
-          <PrimaryButton
-            title="Back to Insights"
-            variant="outline"
-            onPress={() => router.back()}
-          />
         </View>
 
         <View style={styles.card}>
@@ -92,13 +108,22 @@ export default function JournalScreen() {
           {entries.length === 0 ? (
             <Text style={styles.emptyText}>No journal entries yet.</Text>
           ) : (
-            entries.slice(0, 10).map((e) => (
+            entries.slice(0, 20).map((e) => (
               <View key={e.id} style={styles.entryRow}>
-                <Text style={styles.entryMeta}>
-                  {new Date(e.createdAt).toLocaleString()}{" "}
-                  {e.bias ? `• ${e.bias}` : ""}
-                </Text>
-                <Text style={styles.entryText}>{e.text}</Text>
+                <View style={styles.entryContent}>
+                  <Text style={styles.entryMeta}>
+                    {new Date(e.createdAt).toLocaleString()}{" "}
+                    {e.bias ? `· ${e.bias}` : ""}
+                  </Text>
+                  <Text style={styles.entryText}>{e.text}</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => handleDelete(e)}
+                  style={styles.deleteBtn}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Text style={styles.deleteIcon}>🗑️</Text>
+                </TouchableOpacity>
               </View>
             ))
           )}
@@ -127,7 +152,6 @@ const styles = StyleSheet.create({
     padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    ...Shadows.card,
     gap: Spacing.md,
   },
   sectionTitle: { ...Typography.h3 },
@@ -156,10 +180,16 @@ const styles = StyleSheet.create({
   },
   emptyText: { ...Typography.bodySmall, color: Colors.textMuted },
   entryRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
     paddingBottom: Spacing.sm,
     marginBottom: Spacing.sm,
+    gap: Spacing.sm,
+  },
+  entryContent: {
+    flex: 1,
   },
   entryMeta: {
     ...Typography.caption,
@@ -167,4 +197,11 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   entryText: { ...Typography.bodySmall },
+  deleteBtn: {
+    padding: Spacing.xs,
+    marginTop: 2,
+  },
+  deleteIcon: {
+    fontSize: 16,
+  },
 });
